@@ -2,18 +2,16 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
-import ReCAPTCHA from 'react-google-recaptcha';
 
 function App() {
   const [platform, setPlatform] = useState('');
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [captchaToken, setCaptchaToken] = useState('');
 
   const handleDownload = async () => {
-    if (!platform || !url || !captchaToken) {
-      setMessage('Please fill in all fields and solve the reCAPTCHA.');
+    if (!platform || !url) {
+      setMessage('Please fill in all fields.');
       return;
     }
 
@@ -26,7 +24,7 @@ function App() {
 
       const response = await axios.post(
         `${backendUrl}/api/download`,
-        { platform, url, captchaToken },
+        { platform, url },
         { responseType: 'blob' }
       );
 
@@ -61,14 +59,9 @@ function App() {
     }
   };
 
-  const onCaptchaChange = (value) => {
-    setCaptchaToken(value);
-  };
-
   const handlePlatformChange = (e) => {
     setPlatform(e.target.value);
-    setCaptchaToken(''); 
-    setMessage(''); 
+    setMessage('');
   };
 
   return (
@@ -77,7 +70,7 @@ function App() {
         Video Downloader
       </h1>
       <p className="text-md sm:text-lg text-gray-300 mb-8 text-center tracking-wide">
-        Download videos from YouTube, Instagram, or Twitter in just a few clicks!
+        Download videos from Instagram or Twitter in just a few clicks!
       </p>
       <div className="w-full max-w-xl bg-white bg-opacity-5 backdrop-blur-lg shadow-2xl rounded-lg p-8 border border-gray-700">
         <div className="mb-6">
@@ -89,7 +82,6 @@ function App() {
             onChange={handlePlatformChange}
           >
             <option value="" className="text-gray-400">Select Platform</option>
-            <option value="youtube">YouTube</option>
             <option value="instagram">Instagram</option>
             <option value="twitter">Twitter</option>
           </select>
@@ -106,14 +98,10 @@ function App() {
             onChange={(e) => setUrl(e.target.value)}
           />
         </div>
-        <ReCAPTCHA
-          sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-          onChange={onCaptchaChange}
-        />
         <button
           className={`w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-transform transform-gpu duration-300 ease-in-out hover:scale-105 active:scale-95 active:shadow-inner ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           onClick={handleDownload}
-          disabled={isLoading || !platform || !url || !captchaToken}
+          disabled={isLoading || !platform || !url}
         >
           {isLoading ? (
             <div className="flex items-center justify-center">
